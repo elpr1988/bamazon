@@ -1,4 +1,3 @@
-require("console.table");
 var mysql= require("mysql");
 var inquirer = require("inquirer");
 var connection = mysql.createConnection({
@@ -23,17 +22,7 @@ function validate(input) {
 // (item_id, product_name, product_sales(items sold*price), department_name,
 // price, and stock_quantity)
 // still needs to be formatted
-function queryProducts() {
-  connection.query("SELECT * FROM products", function(err, res) {
-  	if (err) throw err;
-	  	console.log("Take a look at our products!");
-	  	console.log("..............................\n");
-	  res.forEach(function(data) {
-	  	console.table([data]);
-	  });
-	  promptUser();
-  }); 
-}
+
 // // and ask user what would they like to purchase and the user inputs ID. 
 function promptUser() {
 	inquirer.prompt([
@@ -64,21 +53,40 @@ function promptUser() {
 				var itemData = data[0];
 				if (quantity <= itemData.stock_quantity) {
 					console.log("Product is in stock and your order is on its way!");
-					var update = "UPDATE products SET stock_quantity = " + 
-					(itemData.stock_quantity - quantity) + "WHERE item_id = " + item;
-					connection.query(update, function(err, data) {
+					connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [quantity, item], function(err, data) {
 						if (err) throw err;
 						console.log("Order placed. Total is: $" + itemData.price * quantity);
+						queryProducts();
 						connection.end();
-					});
+					})
 				} else {
 					console.log("Not enough in stock, cannot place order.");
 					queryProducts();
 				}
 			}
-		});
-	});
+		})
+	})
 }
-// if the client wants to buy more than available prompt insufficient quatity
+// if the client wants to buy more than available prompt insufficient quantity
  // else they can and the table re-prints and updates
+function queryProducts() {
+  connection.query("SELECT * FROM products", function(err, res) {
+  	if (err) throw err;
+	  	console.log("Take a look at our products!");
+	  	console.log("..............................\n");
+	  	var crap = " ";
+	  for(var i = 0; i < res.length; i++) {
+	  	crap = " ";
+	  	crap += "Item ID: " + res[i].item_id + " || ";
+	  	crap += "Product Name: " + res[i].product_name + " || ";
+	  	crap += "Quantity: " + res[i].stock_quantity + " || ";
+	  	crap += "Department: " + res[i].department_name + " || ";
+	  	crap += "Price: " + res[i].price + "\n";
+
+	  	console.log(crap);
+	  }
+	  promptUser();
+  }) 
+}
+
 queryProducts();
