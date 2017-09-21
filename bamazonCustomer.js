@@ -27,6 +27,26 @@ function validate(input) {
 function promptUser() {
 	inquirer.prompt([
 		{
+			type: "list",
+			name: "option",
+			message: "What would you like to do?",
+			choices: ["Purchase", "Exit"]
+		}
+	]).then(function(ans) {
+		switch (ans.option) {
+			case "Purchase":
+				purchaseProducts();
+				break;
+			case "Exit":
+				console.log("Goodbye");
+				connection.end();
+		}
+	})
+}
+
+function purchaseProducts() {
+	inquirer.prompt([
+		{
 			name: "item",
 			type: "input",
 			message: "What item ID would you like to purchase?", 
@@ -57,7 +77,6 @@ function promptUser() {
 						if (err) throw err;
 						console.log("Order placed. Total is: $" + itemData.price * quantity);
 						allProducts();
-						connection.end();
 					})
 				} else {
 					console.log("Not enough in stock, cannot place order.");
