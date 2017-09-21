@@ -48,7 +48,7 @@ function promptUser() {
 			if (err) throw err;
 			if (data.length === 0) {
 				console.log("ERROR: Invalid item ID. Enter a valid item ID.");
-				queryProducts();
+				allProducts();
 			} else {
 				var itemData = data[0];
 				if (quantity <= itemData.stock_quantity) {
@@ -56,12 +56,12 @@ function promptUser() {
 					connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [quantity, item], function(err, data) {
 						if (err) throw err;
 						console.log("Order placed. Total is: $" + itemData.price * quantity);
-						queryProducts();
+						allProducts();
 						connection.end();
 					})
 				} else {
 					console.log("Not enough in stock, cannot place order.");
-					queryProducts();
+					allProducts();
 				}
 			}
 		})
@@ -69,24 +69,24 @@ function promptUser() {
 }
 // if the client wants to buy more than available prompt insufficient quantity
  // else they can and the table re-prints and updates
-function queryProducts() {
+function allProducts() {
   connection.query("SELECT * FROM products", function(err, res) {
   	if (err) throw err;
 	  	console.log("Take a look at our products!");
 	  	console.log("..............................\n");
-	  	var crap = " ";
+	  	var theGoods = " ";
 	  for(var i = 0; i < res.length; i++) {
-	  	crap = " ";
-	  	crap += "Item ID: " + res[i].item_id + " || ";
-	  	crap += "Product Name: " + res[i].product_name + " || ";
-	  	crap += "Quantity: " + res[i].stock_quantity + " || ";
-	  	crap += "Department: " + res[i].department_name + " || ";
-	  	crap += "Price: " + res[i].price + "\n";
+	  	theGoods = " ";
+	  	theGoods += "Item ID: " + res[i].item_id + " || ";
+	  	theGoods += "Product Name: " + res[i].product_name + " || ";
+	  	theGoods += "Quantity: " + res[i].stock_quantity + " || ";
+	  	theGoods += "Department: " + res[i].department_name + " || ";
+	  	theGoods += "Price: " + res[i].price + "\n";
 
-	  	console.log(crap);
+	  	console.log(theGoods);
 	  }
 	  promptUser();
   }) 
 }
 
-queryProducts();
+allProducts();
